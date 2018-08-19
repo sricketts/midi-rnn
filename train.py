@@ -161,10 +161,7 @@ def main():
     args.verbose = True
 
     try:
-        # get paths to midi files in --data_dir
-        midi_files = [os.path.join(args.data_dir, path) \
-                      for path in os.listdir(args.data_dir) \
-                      if '.mid' in path or '.midi' in path]
+        midi_files = utils.midi_files_from_data_dir(args.data_dir)
     except OSError as e:
         log('Error: Invalid --data_dir, {} directory does not exist. Exiting.', args.verbose)
         exit(1)
@@ -221,7 +218,8 @@ def main():
     print('fitting model...')
     # this is a somewhat magic number which is the average number of length-20 windows
     # calculated from ~5K MIDI files from the Lakh MIDI Dataset.
-    magic_number = 827
+    #magic_number = 827
+    magic_number = 368
     start_time = time.time()
     model.fit_generator(train_generator,
                         steps_per_epoch=len(midi_files) * magic_number / args.batch_size, 

@@ -73,13 +73,14 @@ def create_experiment_dir(experiment_dir, verbose=False):
 
     return experiment_dir
 
+
 # load data with a lazzy loader
 def get_data_generator(midi_paths, 
                        window_size=20, 
                        batch_size=32,
                        num_threads=8,
                        max_files_in_ram=170):
-
+        
     if num_threads > 1:
     	# load midi data
     	pool = ThreadPool(num_threads)
@@ -259,3 +260,22 @@ def _encode_sliding_windows(pm_instrument, window_size):
     for i in range(0, roll.shape[0] - window_size - 1):
         windows.append((roll[i:i + window_size], roll[i + window_size + 1]))
     return windows
+
+def _windows_from_file(path, window_size):
+    midi = [parse_midi(path)]
+    windows = _windows_from_monophonic_instruments(midi, window_size)
+    return windows
+
+def windows_in_dataset(paths, window_size):
+    num_windows = 0
+    for path in paths:
+        x, y = _windows_from_file(path, window_size)
+        num_windows += len(x)
+    return num_windows
+
+def midi_files_from_data_dir(data_dir):
+    # get paths to midi files in data_dir
+    midi_files = [os.path.join(data_dir, path) \
+                  for path in os.listdir(data_dir) \
+                  if '.mid' in path or '.midi' in path]
+    return midi_files
